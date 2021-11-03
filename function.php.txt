@@ -1,0 +1,74 @@
+<?php
+    $pdo = new PDO('DSN','mysql:host=localhost;dbname=lesson1;charset=utf8mb4','DB_USER','root','DB_PASS','');
+    
+try{
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+
+        $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false); 
+
+    } catch (PDOException $e){ 
+        echo $e->getMessage(); 
+
+        exit; 
+
+    } 
+
+    return $dbh; 
+    
+    
+
+    if(isset($_POST['submit']) ){
+        $name = $_POST['name'];
+        $stmt = $pdo->prepare("INSERT INTO my list (name) VALUES (:name)");
+        $stmt->bindValue(':name', $name, PDO:: PARAM_STR);
+        $stmt->execute();
+    }elseif(isset($_POST['email'])){
+        $id = $_POST['id'];
+        $stmt = $pdo->prepare("email from list where id = :id");
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+?>
+
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+    <title>MY LIST</title>
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
+</head>
+
+<body class="container">
+    <h1>My List</h1>
+    <form method="post" action="">
+        <input type="text" name="name" value="">
+        <input type="submit" name="submit" value="Add">
+    </form>
+    <h2>Current My List</h2>
+    <table class="table table-striped">
+        <therad><th>Task</th><th></th></therad>
+        <tbody>
+<?php
+    $stmt = $pdo->prepare("SELECT * FROM my list ORDER BY id DESC");
+    $stmt->execute();
+    
+    foreach($stmt as $row) {
+?>
+            <tr>
+                <td><?= htmlspecialchars($row['name']) ?></td>
+                <td>
+                    <form method="POST">
+                        <button type="submit" name="delete">Delete</button>
+                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                        <input type="hidden" name="delete" value="true">
+                    </form>
+                </td>
+            </tr>
+<?php
+    }
+?>
+        </tbody>
+    </table>
+</body>
+</html>
